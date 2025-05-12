@@ -17,24 +17,28 @@ export function createMenu(mainWindow: BrowserWindow) {
             click: () => mainWindow.webContents.openDevTools(),
             visible: isDev(),
           },
+          {
+            label: 'Reload',
+            click: () => mainWindow.reload(),
+          },
         ],
       },
       {
-        label: 'View',
+        label: 'Options',
         type: 'submenu',
         submenu: [
           {
-            label: 'CPU',
+            label: 'First option',
             click: () =>
               ipcWebContentsSend('changeView', mainWindow.webContents, 'CPU'),
           },
           {
-            label: 'RAM',
+            label: 'Second Option',
             click: () =>
               ipcWebContentsSend('changeView', mainWindow.webContents, 'RAM'),
           },
           {
-            label: 'STORAGE',
+            label: 'Third option',
             click: () =>
               ipcWebContentsSend(
                 'changeView',

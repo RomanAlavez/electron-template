@@ -1,6 +1,5 @@
 import { app, BrowserWindow, Menu } from 'electron';
 import { ipcMainHandle, ipcMainOn, isDev } from './util.js';
-import { getStaticData, pollResources } from './resourceManager.js';
 import { getPreloadPath, getUIPath } from './pathResolver.js';
 import { createTray } from './tray.js';
 import { createMenu } from './menu.js';
@@ -19,10 +18,10 @@ app.on('ready', () => {
     mainWindow.loadFile(getUIPath());
   }
 
-  pollResources(mainWindow);
 
-  ipcMainHandle('getStaticData', () => {
-    return getStaticData();
+
+  ipcMainHandle('ping', () => {
+    return 'pong';
   });
 
   ipcMainOn('sendFrameAction', (payload) => {
@@ -35,6 +34,9 @@ app.on('ready', () => {
         break;
       case 'MINIMIZE':
         mainWindow.minimize();
+        break;
+      case 'RELOAD':
+        mainWindow.reload();
         break;
     }
   });
@@ -49,19 +51,22 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
 
   mainWindow.on('close', (e) => {
     if (willClose) {
-      return;
+      return; // Si ya estamos en proceso de cerrar la app, entonces no hacemos nada
     }
-    e.preventDefault();
-    mainWindow.hide();
-    if (app.dock) {
-      app.dock.hide();
-    }
+    // e.preventDefault(); // Prevenimos el cierre de la ventana
+
+    // // Si el evento es de cierre, pero no queremos salir completamente:
+    // mainWindow.hide();
+    // if (app.dock) {
+    //   app.dock.hide(); // Ocultamos del Dock si estamos en macOS
+    // }
   });
 
   app.on('before-quit', () => {
-    willClose = true;
+    willClose = true; // Permitimos el cierre completo de la aplicación
   });
 
+  // Si el mainWindow se muestra nuevamente, restablecemos willClose
   mainWindow.on('show', () => {
     willClose = false;
   });
